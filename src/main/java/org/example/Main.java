@@ -7,8 +7,6 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.*;
-import scala.Char;
-import scala.Int;
 
 import java.util.*;
 import java.util.stream.Collectors;

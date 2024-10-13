@@ -1,2 +1,2 @@
 ﻿## Recomedation Algorithm 
-Algorithm 1: Build based association rules 
+<strong>Algorithm 1</strong>: Build based association rules

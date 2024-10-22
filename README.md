@@ -46,3 +46,13 @@
             }
             return recommendList;
     }
+## Preferences
+     Timur Osadchiy, Ivan Poliakov, Patrick Olivier, Maisie Rowland, Emma Foster,
+     Corrigendum to “Recommender system based on pairwise association rules” [Expert Systems With Applications 115 (2018) 535–542],
+     Expert Systems with Applications,
+     Volume 135,
+     2019,
+     Page 410,
+     ISSN 0957-4174,
+     https://doi.org/10.1016/j.eswa.2019.05.022.
+     (https://www.sciencedirect.com/science/article/pii/S0957417419303513)

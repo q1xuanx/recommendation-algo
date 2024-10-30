@@ -46,7 +46,36 @@
             }
             return recommendList;
     }
-## Preferences
+## Algorithm 3: Build based pair wise association rules
+    public static Map<String, Double> algoRecommend3(Map<Pair<String, Double>, Map<String,Map<String,Double>>> model, List<String> data){
+            Map<String, Double> recommendList = new HashMap<>();
+            Map<String, List<Double>> P = new HashMap<>();
+            Map<String, List<Double>> W = new HashMap<>();
+            Map<String,Double> OD = new HashMap<>();
+            Map<String, Map<String, Double>> CD = new HashMap<>();
+            for (Map.Entry<Pair<String, Double>, Map<String,Map<String,Double>>> entry : model.entrySet()){
+                OD.put(entry.getKey().getKey(), entry.getKey().getValue());
+                CD.put(entry.getKey().getKey(), entry.getValue().get(entry.getKey().getKey()));
+            }
+            for (String inf : data){
+                for (Map.Entry<String,Double> entry : CD.get(inf).entrySet()){
+                    if (!data.contains(entry.getKey())) {
+                        P.putIfAbsent(entry.getKey(), new ArrayList<>());
+                        W.putIfAbsent(entry.getKey(), new ArrayList<>());
+                        Double p = CD.get(inf).get(entry.getKey()) / OD.get(inf);
+                        P.get(entry.getKey()).add(p);
+                        W.get(entry.getKey()).add(OD.get(inf));
+                    }
+                }
+            }
+            for (String f : P.keySet()){
+                double pSum = P.get(f).stream().mapToDouble(Double::doubleValue).sum();
+                double wSum = W.get(f).stream().mapToDouble(Double::doubleValue).sum();
+                recommendList.put(f, pSum * wSum);
+            }
+            return recommendList;
+    }
+# Preferences
      Timur Osadchiy, Ivan Poliakov, Patrick Olivier, Maisie Rowland, Emma Foster,
      Corrigendum to “Recommender system based on pairwise association rules” [Expert Systems With Applications 115 (2018) 535–542],
      Expert Systems with Applications,

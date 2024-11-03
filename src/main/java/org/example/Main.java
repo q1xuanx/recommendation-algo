@@ -1,5 +1,6 @@
 package org.example;
 
+import au.com.bytecode.opencsv.CSVReader;
 import javafx.util.Pair;
 import org.apache.spark.ml.fpm.FPGrowth;
 import org.apache.spark.ml.fpm.FPGrowthModel;
@@ -10,12 +11,15 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.*;
 import scala.Char;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.SQLOutput;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
 //        SparkSession spark = SparkSession
 //                .builder()
 //                .master("local[*]")
@@ -34,25 +38,21 @@ public class Main {
 //        FPGrowthModel model = new FPGrowth().setItemsCol("items").setMinSupport(0.25).setMinConfidence(0.3).fit(itemsDF);
         //model.associationRules().show();
         List<String> IF = new ArrayList<>();
-        for (char i = 'a'; i < 'c'; i++){
-            IF.add(String.valueOf(i));
-        }
-//        IF.add("rice");
-//        IF.add("chicken");
+//        for (char i = 'a'; i < 'c'; i++){
+//            IF.add(String.valueOf(i));
+//        }
+        IF.add("Cơm");
+        IF.add("Sườn Cốt Lếch Ram");
 //        Map<String,Double> recommendList = algoRecommend1(model,IF);
 //        System.out.println("-> Food recommend with algo 1: ");
 //        for (Map.Entry<String, Double> entry : recommendList.entrySet()) {
 //            System.out.println(entry);
 //        }
-        List<String> data1 = new ArrayList<>();
-//        data1.add("rice chicken water egg");
-//        data1.add("rice egg milk");
-//        data1.add("egg milk");
-//        data1.add("rice chicken");
-        data1.add("a b c d");
-        data1.add("a d e");
-        data1.add("d e");
-        data1.add("a b");
+        List<String> data1 = readData("C:\\Users\\ADMIN\\Desktop\\AsRecomenResearch\\research\\src\\main\\java\\org\\example\\dataset.csv");
+//        data1.add("Miến Lươn, Nutimilk Sữa Chua Có Đường Hộp 100g");
+//        data1.add("Cơm Trắng Gạo Thường, Mực Nhồi Thịt Hấp, Đậu Cô Ve (Đậu Que) Xào Thịt Bò, Canh Chua Cá Thát Lát, Nho Ngọt (55g/phần - 7 Trái Vừa)");
+//        data1.add("Cơm Trắng Gạo Thường, Ức Gà Kho Sả, Khoai Tây Xào Thịt Bò, Canh Đu Đủ Xanh Nấu Thịt Heo");
+//        data1.add("Cơm Trắng Gạo Thường, Sườn Cốt Lết Ram, Canh Bí Đao Nấu Tôm, Cải Ngồng Xào Tỏi, Mận (180g/phần - 2 Trái Lớn)");
 //        Map<Integer, List<Pair<String, Double>>> trainRes = Train1(data1);
 //        Map<String, Double> recommendList1 = algoRecommend2(trainRes, IF);
 //        System.out.println("Train Algo 2: " + trainRes);
@@ -60,16 +60,34 @@ public class Main {
 //        for (Map.Entry<String, Double> entry : recommendList1.entrySet()) {
 //            System.out.println(entry);
 //        }
-        Map<Pair<String, Double>, Map<String,Map<String,Double>>> trainRes2 = Train2(data1);
-        for (Map.Entry<Pair<String, Double>, Map<String,Map<String,Double>>> entry : trainRes2.entrySet()) {
-            System.out.print(entry.getKey().getKey() + " " + entry.getKey().getValue() + " => ");
-            for (Map.Entry<String,Double> pair : entry.getValue().get(entry.getKey().getKey()).entrySet()) {
-                System.out.print(pair.getKey() + " " + pair.getValue() + ", ");
-            }
-            System.out.println();
+        RecommendModel recommendModel = new RecommendModel();
+        recommendModel.loadModel("C:\\Users\\ADMIN\\Desktop\\AsRecomenResearch\\research\\modelRecommend.ser");
+        for (Map.Entry<String, Double> entry : recommendModel.recommend(IF).entrySet()){
+            System.out.println(entry.getKey() + ": " + entry.getValue());
         }
-        Map<String, Double> algoRecommend3 = algoRecommend3(trainRes2, IF);
-        System.out.println(algoRecommend3);
+    }
+    public static List<String> readData(String nameDataSet){
+        List<String> data = new ArrayList<>();
+        List<List<String>> records = new ArrayList<>();
+        try(CSVReader csvReader = new CSVReader(new FileReader(nameDataSet));){
+            String[] nextRecord = null;
+            while ((nextRecord = csvReader.readNext()) != null){
+                records.add(Arrays.asList(nextRecord));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        for(int i = 1; i < records.size(); i++){
+            data.add(records.get(i).get(1));
+        }
+        return data;
+    }
+    public static void saveModel(Map<Pair<String, Double>, Map<String,Map<String,Double>>> model, String filePath){
+        try(ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(Paths.get(filePath)))){
+            oos.writeObject(model);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
     //Algo 1 based Association rules
     public static Map<String,Double> algoRecommend1(FPGrowthModel model, List<String> IF){
@@ -105,7 +123,7 @@ public class Main {
             String m = data.get(i);
             List<Pair<String, Double>> saveConf = new ArrayList<>();
             int cm = (int) data.stream().filter(s -> s.contains(m)).count();
-            List<String> datas = Arrays.stream(m.split(" ")).map(String::trim).collect(Collectors.toList());
+            List<String> datas = Arrays.stream(m.split(", ")).map(String::trim).collect(Collectors.toList());
             for (int j = 0; j < datas.size(); j++){
                 String f = datas.get(j);
                 int cf = getCf(data, datas, j);
@@ -164,7 +182,7 @@ public class Main {
         Map<String, Double> OD = new HashMap<>();
         Map<String, Map<String, Double>> CD = new HashMap<>();
         for (String m : data){
-            List<String> foods = Arrays.stream(m.split(" ")).map(String::trim).collect(Collectors.toList());
+            List<String> foods = Arrays.stream(m.split(", ")).map(String::trim).collect(Collectors.toList());
             for (String f : foods){
                 OD.putIfAbsent(f, 0.0);
                 CD.putIfAbsent(f, new HashMap<>());

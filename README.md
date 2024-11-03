@@ -1,4 +1,4 @@
-﻿# Recomedation Algorithm 
+﻿# Recommendation Algorithm 
 ## Algorithm 1: Build based association rules
     public static Map<String,Double> algoRecommend1(FPGrowthModel model, List<String> IF){
             Dataset<Row> asRule = model.associationRules();

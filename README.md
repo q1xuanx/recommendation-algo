@@ -1,4 +1,4 @@
-﻿# Recomedation Algorithm 
+﻿# Recommendation Algorithm 
 ## Algorithm 1: Build based association rules
     public static Map<String,Double> algoRecommend1(FPGrowthModel model, List<String> IF){
             Dataset<Row> asRule = model.associationRules();
@@ -75,6 +75,9 @@
             }
             return recommendList;
     }
+# I have releases first version of project: 
+* 100 line of data for demo: [model-ver1](https://drive.google.com/file/d/1ZD_bd8BsI6oN5bN7pp5yQLv_tpPdow6Z/view?usp=sharing) (100 line of data)
+* Use jar file to load model: [package](https://drive.google.com/file/d/1mM_7S6Iaf6oZob3HEPNZXkIXHiQ3huOy/view?usp=sharing)
 # Preferences
      Timur Osadchiy, Ivan Poliakov, Patrick Olivier, Maisie Rowland, Emma Foster,
      Corrigendum to “Recommender system based on pairwise association rules” [Expert Systems With Applications 115 (2018) 535–542],

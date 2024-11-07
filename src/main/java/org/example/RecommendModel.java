@@ -1,6 +1,5 @@
 package org.example;
 
-import javafx.util.Pair;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -43,8 +42,8 @@ public class RecommendModel implements Serializable {
     }
 
     // Phương thức tải mô hình
-    public void loadModel(String filePath) throws IOException, ClassNotFoundException {
-        try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(Paths.get(filePath)))) {
+    public void loadModel(InputStream modelStream ) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream ois = new ObjectInputStream(modelStream)) {
             this.model = (Map<Pair<String, Double>, Map<String, Map<String, Double>>>) ois.readObject();
         }
     }
@@ -59,13 +58,15 @@ public class RecommendModel implements Serializable {
             CD.put(entry.getKey().getKey(), entry.getValue().get(entry.getKey().getKey()));
         }
         for (String inf : data){
-            for (Map.Entry<String,Double> entry : CD.get(inf).entrySet()){
-                if (!data.contains(entry.getKey())) {
-                    P.putIfAbsent(entry.getKey(), new ArrayList<>());
-                    W.putIfAbsent(entry.getKey(), new ArrayList<>());
-                    Double p = CD.get(inf).get(entry.getKey()) / OD.get(inf);
-                    P.get(entry.getKey()).add(p);
-                    W.get(entry.getKey()).add(OD.get(inf));
+            if (CD.get(inf) != null) {
+                for (Map.Entry<String, Double> entry : CD.get(inf).entrySet()) {
+                    if (!data.contains(entry.getKey())) {
+                        P.putIfAbsent(entry.getKey(), new ArrayList<>());
+                        W.putIfAbsent(entry.getKey(), new ArrayList<>());
+                        Double p = CD.get(inf).get(entry.getKey()) / OD.get(inf);
+                        P.get(entry.getKey()).add(p);
+                        W.get(entry.getKey()).add(OD.get(inf));
+                    }
                 }
             }
         }

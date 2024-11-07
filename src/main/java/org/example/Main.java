@@ -1,7 +1,6 @@
 package org.example;
 
 import au.com.bytecode.opencsv.CSVReader;
-import javafx.util.Pair;
 import org.apache.spark.ml.fpm.FPGrowth;
 import org.apache.spark.ml.fpm.FPGrowthModel;
 import org.apache.spark.sql.Dataset;
@@ -42,29 +41,21 @@ public class Main {
 //            IF.add(String.valueOf(i));
 //        }
         IF.add("Cơm");
-        IF.add("Sườn Cốt Lếch Ram");
+        IF.add("Gà Xào Rau Củ");
 //        Map<String,Double> recommendList = algoRecommend1(model,IF);
 //        System.out.println("-> Food recommend with algo 1: ");
 //        for (Map.Entry<String, Double> entry : recommendList.entrySet()) {
 //            System.out.println(entry);
 //        }
         List<String> data1 = readData("C:\\Users\\ADMIN\\Desktop\\AsRecomenResearch\\research\\src\\main\\java\\org\\example\\dataset.csv");
-//        data1.add("Miến Lươn, Nutimilk Sữa Chua Có Đường Hộp 100g");
-//        data1.add("Cơm Trắng Gạo Thường, Mực Nhồi Thịt Hấp, Đậu Cô Ve (Đậu Que) Xào Thịt Bò, Canh Chua Cá Thát Lát, Nho Ngọt (55g/phần - 7 Trái Vừa)");
-//        data1.add("Cơm Trắng Gạo Thường, Ức Gà Kho Sả, Khoai Tây Xào Thịt Bò, Canh Đu Đủ Xanh Nấu Thịt Heo");
-//        data1.add("Cơm Trắng Gạo Thường, Sườn Cốt Lết Ram, Canh Bí Đao Nấu Tôm, Cải Ngồng Xào Tỏi, Mận (180g/phần - 2 Trái Lớn)");
-//        Map<Integer, List<Pair<String, Double>>> trainRes = Train1(data1);
-//        Map<String, Double> recommendList1 = algoRecommend2(trainRes, IF);
-//        System.out.println("Train Algo 2: " + trainRes);
-//        System.out.println("-> Food recommend with algo 2: ");
-//        for (Map.Entry<String, Double> entry : recommendList1.entrySet()) {
-//            System.out.println(entry);
+        Map<Pair<String, Double>, Map<String, Map<String,Double>>> train = Train2(data1);
+        saveModel(train, "/modelRecommend.ser");
+        System.out.println("Save Success");
+//        InputStream modelStream = Main.class.getResourceAsStream("/modelRecommend.ser");
+//        recommendModel.loadModel(modelStream);
+//        for (Map.Entry<String, Double> entry : recommendModel.recommend(IF).entrySet()){
+//            System.out.println(entry.getKey() + ": " + entry.getValue());
 //        }
-        RecommendModel recommendModel = new RecommendModel();
-        recommendModel.loadModel("C:\\Users\\ADMIN\\Desktop\\AsRecomenResearch\\research\\modelRecommend.ser");
-        for (Map.Entry<String, Double> entry : recommendModel.recommend(IF).entrySet()){
-            System.out.println(entry.getKey() + ": " + entry.getValue());
-        }
     }
     public static List<String> readData(String nameDataSet){
         List<String> data = new ArrayList<>();
@@ -176,6 +167,16 @@ public class Main {
         }
         return recommendList;
     }
+    public static void setOfData(List<String> data){
+        Set<String> set = new HashSet<>();
+        for (String m : data){
+            List<String> foods = Arrays.stream(m.split(", ")).map(String::trim).collect(Collectors.toList());
+            set.addAll(foods);
+        }
+        for (String s : set){
+            System.out.println(s);
+        }
+    }
     //Algo 3 Train based pair wise associations rules
     public static Map<Pair<String, Double>, Map<String, Map<String,Double>>> Train2 (List<String> data){
         Map<Pair<String, Double>, Map<String, Map<String,Double>>> tm = new HashMap<>();
@@ -215,13 +216,15 @@ public class Main {
             CD.put(entry.getKey().getKey(), entry.getValue().get(entry.getKey().getKey()));
         }
         for (String inf : data){
-            for (Map.Entry<String,Double> entry : CD.get(inf).entrySet()){
-                if (!data.contains(entry.getKey())) {
-                    P.putIfAbsent(entry.getKey(), new ArrayList<>());
-                    W.putIfAbsent(entry.getKey(), new ArrayList<>());
-                    Double p = CD.get(inf).get(entry.getKey()) / OD.get(inf);
-                    P.get(entry.getKey()).add(p);
-                    W.get(entry.getKey()).add(OD.get(inf));
+            if (CD.get(inf) != null) {
+                for (Map.Entry<String, Double> entry : CD.get(inf).entrySet()) {
+                    if (!data.contains(entry.getKey())) {
+                        P.putIfAbsent(entry.getKey(), new ArrayList<>());
+                        W.putIfAbsent(entry.getKey(), new ArrayList<>());
+                        Double p = CD.get(inf).get(entry.getKey()) / OD.get(inf);
+                        P.get(entry.getKey()).add(p);
+                        W.get(entry.getKey()).add(OD.get(inf));
+                    }
                 }
             }
         }

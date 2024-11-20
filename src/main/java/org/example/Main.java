@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Main {
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
 //        SparkSession spark = SparkSession
 //                .builder()
 //                .master("local[*]")
@@ -40,17 +40,19 @@ public class Main {
 //        for (char i = 'a'; i < 'c'; i++){
 //            IF.add(String.valueOf(i));
 //        }
-        IF.add("Cơm");
-        IF.add("Gà Xào Rau Củ");
+//        IF.add("Cơm");
+//        IF.add("Gà Xào Rau Củ");
 //        Map<String,Double> recommendList = algoRecommend1(model,IF);
 //        System.out.println("-> Food recommend with algo 1: ");
 //        for (Map.Entry<String, Double> entry : recommendList.entrySet()) {
 //            System.out.println(entry);
 //        }
+        RecommendModel recommendModel = new RecommendModel();
         List<String> data1 = readData("C:\\Users\\ADMIN\\Desktop\\AsRecomenResearch\\research\\src\\main\\java\\org\\example\\dataset.csv");
-        Map<Pair<String, Double>, Map<String, Map<String,Double>>> train = Train2(data1);
-        saveModel(train, "/modelRecommend.ser");
-        System.out.println("Save Success");
+//        Map<Pair<String, Double>, Map<String, Map<String,Double>>> train = Train2(data1);
+//        saveModel(train, "/modelRecommend.ser");
+        recommendModel.train(data1);
+        //System.out.println("Save Success");
 //        InputStream modelStream = Main.class.getResourceAsStream("/modelRecommend.ser");
 //        recommendModel.loadModel(modelStream);
 //        for (Map.Entry<String, Double> entry : recommendModel.recommend(IF).entrySet()){

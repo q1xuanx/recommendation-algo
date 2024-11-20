@@ -1,6 +1,5 @@
 package org.example;
 
-
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -9,12 +8,14 @@ import java.util.stream.Collectors;
 
 public class RecommendModel implements Serializable {
     private Map<Pair<String, Double>, Map<String, Map<String,Double>>> model;
-    public void train (List<String> data){
+    public void train (List<String> data) throws InterruptedException {
         this.model = new HashMap<>();
         Map<String, Double> OD = new HashMap<>();
         Map<String, Map<String, Double>> CD = new HashMap<>();
-        for (String m : data){
-            List<String> foods = Arrays.stream(m.split(", ")).map(String::trim).collect(Collectors.toList());
+        ProgressBar pb = new ProgressBar(data.size(), 50);
+        System.out.println("Started training: ");
+        for (int i = 0; i < data.size(); i++){
+            List<String> foods = Arrays.stream(data.get(i).split(", ")).map(String::trim).collect(Collectors.toList());
             for (String f : foods){
                 OD.putIfAbsent(f, 0.0);
                 CD.putIfAbsent(f, new HashMap<>());
@@ -28,12 +29,20 @@ public class RecommendModel implements Serializable {
                     }
                 }
             }
+            pb.makeProgress(i+1);
         }
+        System.out.println("\nFinished training ! ");
+        System.out.println("Start structured data: ");
+        ProgressBar pb2 = new ProgressBar(OD.size(), 50);
+        int current = 1;
         for (Map.Entry<String, Double> entry : OD.entrySet()){
             Pair<String, Double> mainPair = new Pair<>(entry.getKey(), entry.getValue());
             model.put(mainPair, new HashMap<>());
             model.get(mainPair).put(entry.getKey(), CD.get(entry.getKey()));
+            pb2.makeProgress(current);
+            current++;
         }
+        System.out.println("\nFinish structured data!");
     }
     public void saveModel(String filePath) throws IOException {
         try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(Paths.get(filePath)))) {

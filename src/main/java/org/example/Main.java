@@ -49,10 +49,10 @@ public class Main {
 //        }
         RecommendModel recommendModel = new RecommendModel();
         List<String> data1 = readData("C:\\Users\\ADMIN\\Desktop\\AsRecomenResearch\\research\\src\\main\\java\\org\\example\\dataset.csv");
-//        Map<Pair<String, Double>, Map<String, Map<String,Double>>> train = Train2(data1);
-//        saveModel(train, "/modelRecommend.ser");
         recommendModel.train(data1);
-        //System.out.println("Save Success");
+        recommendModel.saveModel("/modelRecommend.ser");
+        System.out.println("Save Success");
+        //setOfData(data1);
 //        InputStream modelStream = Main.class.getResourceAsStream("/modelRecommend.ser");
 //        recommendModel.loadModel(modelStream);
 //        for (Map.Entry<String, Double> entry : recommendModel.recommend(IF).entrySet()){
@@ -176,7 +176,7 @@ public class Main {
             set.addAll(foods);
         }
         for (String s : set){
-            System.out.println(s);
+            System.out.println("\"" + s + "\", ");
         }
     }
     //Algo 3 Train based pair wise associations rules

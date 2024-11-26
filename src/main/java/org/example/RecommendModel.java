@@ -50,7 +50,6 @@ public class RecommendModel implements Serializable {
         }
     }
 
-    // Phương thức tải mô hình
     public void loadModel(InputStream modelStream ) throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(modelStream)) {
             this.model = (Map<Pair<String, Double>, Map<String, Map<String, Double>>>) ois.readObject();

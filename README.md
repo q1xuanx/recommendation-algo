@@ -76,7 +76,8 @@
             return recommendList;
     }
 # I have releases first version of project: 
-* 100 line of data for demo: [model-ver1](https://drive.google.com/file/d/1ZD_bd8BsI6oN5bN7pp5yQLv_tpPdow6Z/view?usp=sharing) (100 line of data)
+* 100 line of data for demo: [model-ver1](https://drive.google.com/file/d/1ZD_bd8BsI6oN5bN7pp5yQLv_tpPdow6Z/view?usp=sharing) (100 line of dataset)
+* 200 line of data for demo: [model-ver2](https://drive.google.com/file/d/1_W00ewwLH3mZkuvVlZBGT3sMuE9M5zxr/view?usp=sharing) (215 line of dataset)
 * Use jar file to load model: [package](https://drive.google.com/file/d/1mM_7S6Iaf6oZob3HEPNZXkIXHiQ3huOy/view?usp=sharing)
 # Preferences
      Timur Osadchiy, Ivan Poliakov, Patrick Olivier, Maisie Rowland, Emma Foster,

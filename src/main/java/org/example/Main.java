@@ -58,12 +58,12 @@ public class Main {
         List<String> data1 = readData("C:\\Users\\ADMIN\\Desktop\\AsRecomenResearch\\research\\src\\main\\java\\org\\example\\dataset.csv");
         System.out.println("Pairwise default: ");
         Map<Pair<String, Double>, Map<String, Map<String,Double>>> trainSet = Train2(data1);
-        System.out.println("Recommend Pairwise: ");
+        System.out.println("\nRecommend Pairwise: ");
         Map<String,Double> rec1 = algoRecommend3(trainSet, IF);
         System.out.println(rec1);
         System.out.println("Pairwise constrain leased");
         Map<Pair<String, Double>, Map<String, Map<String,Double>>> trainSet2 = trainConstraint(data1, IF);
-        System.out.println("Constraint as rules: ");
+        System.out.println("\nConstraint as rules: ");
         Map<String,Double> rec2 = recommendConstraint(trainSet2);
         System.out.println(rec2);
         //        recommendModel.saveModel("/modelRecommend.ser");
@@ -205,12 +205,13 @@ public class Main {
         }
     }
     //Algo 3 Train based pair wise associations rules
-    public static Map<Pair<String, Double>, Map<String, Map<String,Double>>> Train2 (List<String> data){
-        Map<Pair<String, Double>, Map<String, Map<String,Double>>> tm = new HashMap<>();
+    public static Map<Pair<String, Double>, Map<String, Map<String,Double>>> Train2 (List<String> data) throws InterruptedException {
+        Map<Pair<String, Double>, Map<String, Map<String,Double>>> tm;
         Map<String, Double> OD = new HashMap<>();
         Map<String, Map<String, Double>> CD = new HashMap<>();
-        for (String m : data){
-            List<String> foods = Arrays.stream(m.split(", ")).map(String::trim).collect(Collectors.toList());
+        ProgressBar progressBar = new ProgressBar(data.size(), Math.min(data.size(),50));
+        for (int i = 0; i < data.size(); i++){
+            List<String> foods = Arrays.stream(data.get(i).split(", ")).map(String::trim).collect(Collectors.toList());
             for (String f : foods){
                 OD.putIfAbsent(f, 0.0);
                 CD.putIfAbsent(f, new HashMap<>());
@@ -224,21 +225,25 @@ public class Main {
                     }
                 }
             }
+            progressBar.makeProgress(i + 1);
         }
         tm = constructData(OD,CD);
         return tm;
     }
-    public static Map<Pair<String, Double>, Map<String, Map<String,Double>>> constructData(Map<String,Double> OD, Map<String, Map<String,Double>> CD){
+    public static Map<Pair<String, Double>, Map<String, Map<String,Double>>> constructData(Map<String,Double> OD, Map<String, Map<String,Double>> CD) throws InterruptedException {
         Map<Pair<String, Double>, Map<String, Map<String,Double>>> tm = new HashMap<>();
+        ProgressBar progressBar = new ProgressBar(OD.size(), Math.min(OD.size(), 50));
+        int i = 1;
         for (Map.Entry<String, Double> entry : OD.entrySet()){
             Pair<String, Double> mainPair = new Pair<>(entry.getKey(), entry.getValue());
             tm.put(mainPair, new HashMap<>());
             tm.get(mainPair).put(entry.getKey(), CD.get(entry.getKey()));
+            progressBar.makeProgress(i++);
         }
         return tm;
     }
     //Constrain leased associations rules
-    public static Map<Pair<String, Double>, Map<String, Map<String,Double>>> trainConstraint(List<String> data, List<String> InputFood){
+    public static Map<Pair<String, Double>, Map<String, Map<String,Double>>> trainConstraint(List<String> data, List<String> InputFood) throws InterruptedException {
         Map<Pair<String, Double>, Map<String, Map<String,Double>>> tm;
         Map<String, Double> OD = new HashMap<>();
         Map<String, Map<String, Double>> CD = new HashMap<>();
@@ -251,8 +256,9 @@ public class Main {
         String query = builder.toString().trim();
         OD.put(query, 0.0);
         CD.put(query, new HashMap<>());
-        for (String m : data){
-            List<String> foods  = Arrays.stream(m.split(", ")).map(String::trim).collect(Collectors.toList());
+        ProgressBar progressBar = new ProgressBar(data.size(), 50);
+        for (int i = 0; i < data.size(); i++){
+            List<String> foods  = Arrays.stream(data.get(i).split(", ")).map(String::trim).collect(Collectors.toList());
             boolean isContains = new HashSet<>(foods).containsAll(fFood);
             if (isContains) {
                 List<String> remain = new ArrayList<>(foods);
@@ -266,6 +272,7 @@ public class Main {
                     }
                 }
             }
+            progressBar.makeProgress(i+1);
         }
         tm = constructData(OD,CD);
         return tm;

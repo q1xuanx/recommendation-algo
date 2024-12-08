@@ -20,52 +20,69 @@ import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
-//        SparkSession spark = SparkSession
-//                .builder()
-//                .master("local[*]")
-//                .appName("SparkFPGrowth")
-//                .getOrCreate();
+        List<String> datainput = readData("C:\\Users\\ADMIN\\Desktop\\AsRecomenResearch\\research\\src\\main\\java\\org\\example\\dataset.csv");
+        SparkSession spark = SparkSession
+                .builder()
+                .master("local[*]")
+                .appName("SparkFPGrowth")
+                .getOrCreate();
 //        List<Row> data = Arrays.asList(
 //                RowFactory.create(Arrays.asList("a b c d".split(" "))),
 //                RowFactory.create(Arrays.asList("a d e".split(" "))),
 //                RowFactory.create(Arrays.asList("d e".split(" "))),
 //                RowFactory.create(Arrays.asList("a b".split(" ")))
 //                );
-//        StructType schema = new StructType(new StructField[]{new StructField(
-//                "items", new ArrayType(DataTypes.StringType, true), false, Metadata.empty())
-//        });
-//        Dataset<Row> itemsDF = spark.createDataFrame(data, schema);
-//        FPGrowthModel model = new FPGrowth().setItemsCol("items").setMinSupport(0.25).setMinConfidence(0.3).fit(itemsDF);
-        //model.associationRules().show();
-        List<String> data = new ArrayList<>();
-        data.add("a, b, c, d");
-        data.add("a, d, e");
-        data.add("d, e");
-        data.add("a, b");
+        //System.out.println(data);
+        List<Row> data = new ArrayList<>();
+        for (String s : datainput) {
+            data.add(RowFactory.create(Arrays.asList(s.split(", "))));
+        }
+        //System.out.println(data);
+        StructType schema = new StructType(new StructField[]{new StructField(
+                "items", new ArrayType(DataTypes.StringType, true), false, Metadata.empty())
+        });
+        Dataset<Row> itemsDF = spark.createDataFrame(data, schema);
+        FPGrowthModel model = new FPGrowth().setItemsCol("items").setMinSupport(0.01).setMinConfidence(0.1).fit(itemsDF);
+        model.associationRules().show();
+        //List<String> data1 = new ArrayList<>();
+//        data1.add("a, b, c, d");
+//        data1.add("a, d, e");
+//        data1.add("d, e");
+//        data1.add("a, b");
         List<String> IF = new ArrayList<>();
 //        for (char i = 'a'; i < 'c'; i++){
 //            IF.add(String.valueOf(i));
 //        }
-        IF.add("Tôm Sốt Cà");
-        IF.add("Chuối Già");
-//        IF.add("Cơm");
-//        IF.add("Gà Xào Rau Củ");
-//        Map<String,Double> recommendList = algoRecommend1(model,IF);
-//        System.out.println("-> Food recommend with algo 1: ");
-//        for (Map.Entry<String, Double> entry : recommendList.entrySet()) {
-//            System.out.println(entry);
-//        }
-        List<String> data1 = readData("C:\\Users\\ADMIN\\Desktop\\AsRecomenResearch\\research\\src\\main\\java\\org\\example\\dataset.csv");
-        System.out.println("Pairwise default: ");
-        Map<Pair<String, Double>, Map<String, Map<String,Double>>> trainSet = Train2(data1);
-        System.out.println("\nRecommend Pairwise: ");
-        Map<String,Double> rec1 = algoRecommend3(trainSet, IF);
-        System.out.println(rec1);
-        System.out.println("Pairwise constrain leased");
-        Map<Pair<String, Double>, Map<String, Map<String,Double>>> trainSet2 = trainConstraint(data1, IF);
-        System.out.println("\nConstraint as rules: ");
-        Map<String,Double> rec2 = recommendConstraint(trainSet2);
-        System.out.println(rec2);
+//        IF.add("a");
+//        IF.add("b");
+        IF.add("Cơm");
+        IF.add("Chả Chay Kho Tiêu");
+        Map<String,Double> recommendList = algoRecommend1(model,IF);
+        System.out.println("-> Food recommend based Association Rules: ");
+        for (Map.Entry<String, Double> entry : recommendList.entrySet()) {
+            entry.setValue(Math.round(entry.getValue() * 100.0) / 100.0);
+            System.out.println(entry);
+        }
+        Map<Integer, List<Pair<String, Double>>> train1 = Train1(datainput);
+        System.out.println("-> Food recommend based Transactional Item Confidence: ");
+        Map<String, Double> rec1 = algoRecommend2(train1, IF);
+        Map<String, Double> sorted = rec1.entrySet().stream().sorted(Map.Entry.<String, Double>comparingByValue().reversed()).collect(LinkedHashMap::new, (m, e)-> m.put(e.getKey(), e.getValue()), LinkedHashMap::putAll);
+        for (Map.Entry<String, Double> entry : sorted.entrySet()){
+            System.out.println(entry);
+        }
+        Map<Pair<String, Double>, Map<String, Map<String,Double>>> trainSet = Train2(datainput);
+        System.out.println("\n-> Food recommend based Pairwise Association Rules: ");
+        Map<String,Double> rec2 = algoRecommend3(trainSet, IF);
+        Map<String,Double> sorted2 = rec2.entrySet().stream().sorted(Map.Entry.<String, Double>comparingByValue().reversed()).collect(LinkedHashMap::new, (m,e) -> m.put(e.getKey(), e.getValue()), LinkedHashMap::putAll);
+        for (Map.Entry<String, Double> entry : sorted2.entrySet()){
+            System.out.println(entry);
+        }
+        Map<Pair<String, Double>, Map<String, Map<String,Double>>> trainSet2 = trainConstraint(datainput, IF);
+        System.out.println("\n-> Food recommend based Constraint Association Rules: ");
+        Map<String,Double> rec3 = recommendConstraint(trainSet2);
+        for (Map.Entry<String, Double> entry : rec3.entrySet()){
+            System.out.println(entry);
+        }
         //        recommendModel.saveModel("/modelRecommend.ser");
 //        System.out.println("Save Success");
         //setOfData(data1);
@@ -112,7 +129,8 @@ public class Main {
         Map<String, Double> recommendList = new HashMap<>();
         Set<String> IFSet = new HashSet<>(IF);
         for (Row row : asRule.collectAsList()){
-            String f = String.valueOf(row.getList(1).toString().charAt(1));
+            System.out.println(row.getList(1));
+            String f = row.getList(1).toString().replace("[", "").replace("]", "");
             if (!IFSet.contains(f)){
                 Set<String> antc = row.getList(0).stream().map(String::valueOf).collect(Collectors.toSet());
                 Set<String> antcSet = new HashSet<>(antc);

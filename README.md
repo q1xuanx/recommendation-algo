@@ -1,5 +1,6 @@
 ﻿# Recommendation Algorithm 
 ## Algorithm 1: Build based association rules
+```` java
     public static Map<String,Double> algoRecommend1(FPGrowthModel model, List<String> IF){
             Dataset<Row> asRule = model.associationRules();
             Map<String, Double> recommendList = new HashMap<>();
@@ -23,7 +24,9 @@
             }
             return recommendList;
     }
+````
 ## Algorithm 2: Build based transactional item confidence
+``` java
     public static Map<Character, Double> algoRecommend2(Map<Integer, List<Pair<Character, Double>>> model, List<String> data){
             Map<Character,Double> recommendList = new HashMap<>();
             for (Map.Entry<Integer, List<Pair<Character, Double>>> entry : model.entrySet()){
@@ -46,7 +49,9 @@
             }
             return recommendList;
     }
+````
 ## Algorithm 3: Build based pair wise association rules
+```` java
     public static Map<String, Double> algoRecommend3(Map<Pair<String, Double>, Map<String,Map<String,Double>>> model, List<String> data){
             Map<String, Double> recommendList = new HashMap<>();
             Map<String, List<Double>> P = new HashMap<>();
@@ -75,35 +80,38 @@
             }
             return recommendList;
     }
-## Algorithm 4: Build using Constraint Leased Recommend 
+````
+## Algorithm 4: Build using Constraint Leased Recommend
+```` java 
         public static Map<String,Double> recommendConstraint(Map<Pair<String, Double>, Map<String,Map<String,Double>>> model){
-        Map<String, Double> recommend = new HashMap<>();
-        Map<String, List<Double>> P = new HashMap<>();
-        Map<String, List<Double>> W = new HashMap<>();
-        Map<String,Double> OD = new HashMap<>();
-        Map<String, Map<String, Double>> CD = new HashMap<>();
-        for (Map.Entry<Pair<String, Double>, Map<String,Map<String,Double>>> entry : model.entrySet()){
-            OD.put(entry.getKey().getKey(), entry.getKey().getValue());
-            CD.put(entry.getKey().getKey(), entry.getValue().get(entry.getKey().getKey()));
-        }
-        for (Map.Entry<String, Map<String,Double>> entry : CD.entrySet()){
-            for (Map.Entry<String,Double> entry2 : entry.getValue().entrySet()){
-                if (!P.containsKey(entry2.getKey())) {
-                    P.put(entry2.getKey(), new ArrayList<>());
-                    W.put(entry2.getKey(), new ArrayList<>());
-                }
-                Double p = CD.get(entry.getKey()).get(entry2.getKey()) / OD.get(entry.getKey());
-                P.get(entry2.getKey()).add(p);
-                W.get(entry2.getKey()).add(OD.get(entry.getKey()));
+            Map<String, Double> recommend = new HashMap<>();
+            Map<String, List<Double>> P = new HashMap<>();
+            Map<String, List<Double>> W = new HashMap<>();
+            Map<String,Double> OD = new HashMap<>();
+            Map<String, Map<String, Double>> CD = new HashMap<>();
+            for (Map.Entry<Pair<String, Double>, Map<String,Map<String,Double>>> entry : model.entrySet()){
+                OD.put(entry.getKey().getKey(), entry.getKey().getValue());
+                CD.put(entry.getKey().getKey(), entry.getValue().get(entry.getKey().getKey()));
             }
+            for (Map.Entry<String, Map<String,Double>> entry : CD.entrySet()){
+                for (Map.Entry<String,Double> entry2 : entry.getValue().entrySet()){
+                    if (!P.containsKey(entry2.getKey())) {
+                        P.put(entry2.getKey(), new ArrayList<>());
+                        W.put(entry2.getKey(), new ArrayList<>());
+                    }
+                    Double p = CD.get(entry.getKey()).get(entry2.getKey()) / OD.get(entry.getKey());
+                    P.get(entry2.getKey()).add(p);
+                    W.get(entry2.getKey()).add(OD.get(entry.getKey()));
+                }
+            }
+            for (String food : P.keySet()) {
+                Double pSum = P.get(food).stream().mapToDouble(Double::doubleValue).sum();
+                Double wSum = W.get(food).stream().mapToDouble(Double::doubleValue).sum();
+                recommend.put(food, (pSum * wSum));
+            }
+            return recommend;
         }
-        for (String food : P.keySet()) {
-            Double pSum = P.get(food).stream().mapToDouble(Double::doubleValue).sum();
-            Double wSum = W.get(food).stream().mapToDouble(Double::doubleValue).sum();
-            recommend.put(food, (pSum * wSum));
-        }
-        return recommend;
-    }
+```` 
 # Released
 * 100 line of data for demo: [model-ver1](https://drive.google.com/file/d/1ZD_bd8BsI6oN5bN7pp5yQLv_tpPdow6Z/view?usp=sharing) (100 line of dataset)
 * 200 line of data for demo: [model-ver2](https://drive.google.com/file/d/1_W00ewwLH3mZkuvVlZBGT3sMuE9M5zxr/view?usp=sharing) (215 line of dataset)

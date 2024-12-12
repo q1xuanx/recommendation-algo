@@ -49,16 +49,18 @@ public class Main {
                 "items", new ArrayType(DataTypes.StringType, true), false, Metadata.empty())
         });
         Dataset<Row> itemsDF = spark.createDataFrame(data, schema);
-        FPGrowthModel model = new FPGrowth().setItemsCol("items").setMinSupport(0.01).setMinConfidence(0.6).fit(itemsDF);
-//        long genARTime = runtimeCalculate(() -> {
-//            FPGrowthModel model1 = new FPGrowth().setItemsCol("items").setMinSupport(0.01).setMinConfidence(0.1).fit(itemsDF);
-//        }, iterations);
+        FPGrowthModel model = new FPGrowth().setItemsCol("items").setMinSupport(0.001).setMinConfidence(0.6).fit(itemsDF);
+        float genARTime = runtimeCalculate(() -> {
+            FPGrowthModel model1 = new FPGrowth().setItemsCol("items").setMinSupport(0.001).setMinConfidence(0.6).fit(itemsDF);
+        }, iterations);
         //model.associationRules().show();
         List<String> IF = new ArrayList<>();
 //        IF.add("a");
 //        IF.add("b");
-        IF.add("Cơm");
+        //IF.add("Cơm");
         IF.add("Chả Chay Kho Tiêu");
+//        IF.add("Súp Lơ Xanh Xào Cà Rốt");
+        //IF.add("Canh Bầu");
         List<Integer> dataIf = changeInputFoodToNum(IF, mappingData);
         List<FpgrowData> listData = prepareForFpModel(model, mappingData);
         List<List<Integer>> dataNumber = changeDataTrainToNumber(datainput, mappingData);
@@ -68,24 +70,20 @@ public class Main {
             en.setValue(Math.round(en.getValue() * 100.0) / 100.0);
             System.out.println(reverseDataMapping.get(en.getKey()) + " " + en.getValue());
         }
-//        long avgRecommend1 = runtimeCalculate(() -> {
-//            Map<String,Double> recommendList1 = algoRecommend1(model,IF);
+//        float avgRecommend1 = runtimeCalculate(() -> {
+//            Map<Integer,Double> recommendList1 = algoRecommend1(listData, dataIf);
 //        },iterations);
-//        System.out.println("Avg gen AS rules: " + genARTime + "ms");
+//        System.out.println("AVG gen AS rules: " + genARTime + "ms");
 //        System.out.println("AVG time for AR: " + avgRecommend1 + "ms");
-        //        for (Map.Entry<String, Double> entry : recommendList.entrySet()) {
-//            entry.setValue(Math.round(entry.getValue() * 100.0) / 100.0);
-//            System.out.println(entry);
-//        }
         Map<Integer, List<Pair<Integer, Double>>> train1 = Train1(dataNumber);
 //        float avgTrain1 = runtimeCalculate(() -> {
-//            Map<Integer, List<Pair<String, Double>>> trainCal = Train1(datainput);
+//            Map<Integer, List<Pair<Integer, Double>>> trainCal = Train1(dataNumber);
 //        }, iterations);
         System.out.println("-> Food recommend based Transactional Item Confidence: ");
         //System.out.println("AVG train for TIC: " + avgTrain1 + "ms");
-        Map<Integer, Double> rec1 = algoRecommend2(train1, dataIf);
+        Map<Integer, Double> rec1 = algoRecommend2(train1, dataIf, 2.0f);
 //        float avgRec1 = runtimeCalculate(() -> {
-//            Map<String, Double> recCal = algoRecommend2(train1, IF);
+//            Map<Integer, Double> recCal = algoRecommend2(train1, dataIf, 2.0f);
 //        }, iterations);
 //        System.out.println("AVG time for TIC: " + avgRec1 + "ms");
 //        Map<String, Double> sorted = rec1.entrySet().stream().sorted(Map.Entry.<String, Double>comparingByValue().reversed()).collect(LinkedHashMap::new, (m, e)-> m.put(e.getKey(), e.getValue()), LinkedHashMap::putAll);
@@ -94,18 +92,18 @@ public class Main {
             System.out.println(reverseDataMapping.get(entry.getKey()) + " " + entry.getValue());
         }
         Map<Pair<Integer, Double>, Map<Integer, Map<Integer,Double>>> trainSet = Train2(dataNumber);
-//        float avgTrain2 = runtimeCalculate(() -> {
-//            try {
-//                Map<Pair<String, Double>, Map<String, Map<String,Double>>> trainCal = Train2(datainput);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }, iterations);
+        float avgTrain2 = runtimeCalculate(() -> {
+            try {
+                Map<Pair<Integer, Double>, Map<Integer, Map<Integer,Double>>> trainCal = Train2(dataNumber);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }, iterations);
         System.out.println("-> Food recommend based Pairwise Association Rules: ");
-        //System.out.println("AVG train for PAR: " + avgTrain2 + "ms");
-       Map<Integer,Double> rec2 = algoRecommend3(trainSet, dataIf);
+        System.out.println("AVG train for PAR: " + avgTrain2 + "ms");
+        Map<Integer,Double> rec2 = algoRecommend3(trainSet, dataIf,2.0f);
 //        float avgRec2 = runtimeCalculate(() -> {
-//            Map<String,Double> recCal = algoRecommend3(trainSet, IF);
+//            Map<Integer,Double> recCal = algoRecommend3(trainSet, dataIf, 2.0f);
 //        }, iterations);
 //        System.out.println("AVG time for PAR: " + avgRec2 + "ms");
         //Map<String,Double> sorted2 = rec2.entrySet().stream().sorted(Map.Entry.<String, Double>comparingByValue().reversed()).collect(LinkedHashMap::new, (m,e) -> m.put(e.getKey(), e.getValue()), LinkedHashMap::putAll);
@@ -114,24 +112,18 @@ public class Main {
             System.out.println(reverseDataMapping.get(entry.getKey()) + " " + entry.getValue());
         }
         Map<Pair<List<Integer>, Double>, Map<List<Integer>, Map<Integer,Double>>> trainSet2 = trainConstraint(dataNumber, dataIf);
-//        for (Map.Entry<Pair<String, Double>, Map<String, Map<String,Double>>> entry : trainSet.entrySet()){
-//            System.out.print(entry.getKey().getKey() + " " + entry.getKey().getValue() + " => ");
-//            for (Map.Entry<String, Map<String,Double>> entry1 : entry.getValue().entrySet()){
-//                System.out.println(entry1.getValue());
-//            }
-//        }
 //        float avgTrain3 = runtimeCalculate(() -> {
 //            try {
-//                Map<Pair<String, Double>, Map<String, Map<String,Double>>> trainCal = trainConstraint(datainput, IF);
+//                Map<Pair<List<Integer>, Double>, Map<List<Integer>, Map<Integer,Double>>> trainCal = trainConstraint(dataNumber, dataIf);
 //            } catch (InterruptedException e) {
 //                throw new RuntimeException(e);
 //            }
 //        }, iterations);
         System.out.println("-> Food recommend based Constraint Association Rules: ");
-        //System.out.println("AVG time train for CAR: " + avgTrain3 + "ms");
+//        System.out.println("AVG time train for CAR: " + avgTrain3 + "ms");
         Map<Integer,Double> rec3 = recommendConstraint(trainSet2);
 //        float avgRec3 = runtimeCalculate(() -> {
-//            Map<String,Double> recCal = recommendConstraint(trainSet2);
+//            Map<Integer,Double> recCal = recommendConstraint(trainSet2);
 //        }, iterations);
 //        System.out.println("AVG time for CAR: " + avgRec3 + "ms");
         for (Map.Entry<Integer, Double> entry : rec3.entrySet()){
@@ -147,7 +139,7 @@ public class Main {
 //            System.out.println(entry.getKey() + ": " + entry.getValue());
 //        }
     }
-    public static float runtimeCalculate(Runnable task, int iterations){
+    public static float runtimeCalculate(Runnable task, int iterations) {
         long totalTime = 0;
         for (int i = 0; i < iterations; i++) {
             long start = System.currentTimeMillis();
@@ -155,7 +147,8 @@ public class Main {
             long end = System.currentTimeMillis();
             totalTime += (end - start);
         }
-        return (float) totalTime / iterations;
+        float averageTime = (float) totalTime / iterations;
+        return Math.round(averageTime * 1000.0f) / 1000.0f;
     }
     public static List<String> readData(String nameDataSet){
         List<String> data = new ArrayList<>();
@@ -301,7 +294,7 @@ public class Main {
         return cf;
     }
 
-    public static Map<Integer, Double> algoRecommend2(Map<Integer, List<Pair<Integer, Double>>> model, List<Integer> data){
+    public static Map<Integer, Double> algoRecommend2(Map<Integer, List<Pair<Integer, Double>>> model, List<Integer> data, float recommend_score){
         Map<Integer,Double> recommendList = new HashMap<>();
         for (Map.Entry<Integer, List<Pair<Integer, Double>>> entry : model.entrySet()){
             List<Pair<Integer, Double>> tempList = new ArrayList<>(entry.getValue());
@@ -320,6 +313,7 @@ public class Main {
                 }
             }
         }
+        recommendList.entrySet().removeIf(entry -> entry.getValue() < recommend_score);
         return recommendList;
     }
     public static void setOfData(List<String> data){
@@ -367,7 +361,7 @@ public class Main {
         }
         return tm;
     }
-    public static Map<Integer, Double> algoRecommend3(Map<Pair<Integer, Double>, Map<Integer,Map<Integer,Double>>> model, List<Integer> data){
+    public static Map<Integer, Double> algoRecommend3(Map<Pair<Integer, Double>, Map<Integer,Map<Integer,Double>>> model, List<Integer> data, float recommend_score){
         Map<Integer, Double> recommendList = new HashMap<>();
         Map<Integer, List<Double>> P = new HashMap<>();
         Map<Integer, List<Double>> W = new HashMap<>();
@@ -395,6 +389,7 @@ public class Main {
             double wSum = W.get(f).stream().mapToDouble(Double::doubleValue).sum();
             recommendList.put(f, pSum * wSum);
         }
+        recommendList.entrySet().removeIf(entry -> entry.getValue() < recommend_score);
         return recommendList;
     }
     //Constrain leased associations rules

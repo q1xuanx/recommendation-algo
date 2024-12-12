@@ -166,6 +166,9 @@ In this project i change data to number to echance efficiency of algorithm. Afte
 ![Thời gian chạy của từng thuật toán](https://github.com/user-attachments/assets/0afad6c2-2416-44f5-b8c8-f871d0c03ae4)
 # Summary
 The CAR algorithm demonstrates a fast runtime and provides highly accurate recommendations that closely align with the algorithm's intent. Following that, the PAR and TIC algorithms also show high accuracy, but they tend to generate many redundant rules during the rule generation process. This leads to less efficient and stable performance compared to CAR.
+# Contact
+````If you have any contributions, please fork this repository and make a pull request ````
+Feel free to submit your contributions 💌
 # Preferences
      Timur Osadchiy, Ivan Poliakov, Patrick Olivier, Maisie Rowland, Emma Foster,
      Corrigendum to “Recommender system based on pairwise association rules” [Expert Systems With Applications 115 (2018) 535–542],

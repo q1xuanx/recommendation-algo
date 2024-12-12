@@ -1,4 +1,48 @@
 ﻿# Recommendation Algorithm 
+## Preprocess Data
+In this project i change data to number to echance efficiency of algorithm. After have recommned food response, i use reverse map to mapping data again and output it for user
+* Create data train to number 
+``` java
+    public static List<List<Integer>> changeDataTrainToNumber(List<String> data, Map<String, Integer> mappingValue){
+        List<List<Integer>> listData = new ArrayList<>();
+        for (String s : data){
+            String[] temp = s.split(", ");
+            List<Integer> dataAdd = new ArrayList<>();
+            for (String s2 : temp){
+                dataAdd.add(mappingValue.get(s2));
+            }
+            listData.add(dataAdd);
+        }
+        return listData;
+    }
+```
+* Create map for mapping data used for change data train to number
+```` java
+    public static Map<String, Integer> prepareData(List<String> data){
+        int i = 1;
+        Map<String, Integer> listDataToMapping = new HashMap<>();
+        for (String s : data){
+            List<String> split = Arrays.stream(s.split(", ")).map(String::valueOf).collect(Collectors.toList());
+            for (String s1 : split){
+                if (!listDataToMapping.containsKey(s1)){
+                    listDataToMapping.put(s1, i);
+                    i++;
+                }
+            }
+        }
+        return listDataToMapping;
+    }
+````
+* Create reverse map after have recommend list then convert it to name of food
+```` java
+    public static Map<Integer, String> reverseDataMapping(Map<String, Integer> data){
+        Map<Integer, String> reverseData = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : data.entrySet()){
+            reverseData.put(entry.getValue(), entry.getKey());
+        }
+        return reverseData;
+    }
+````
 ## Algorithm 1: Build based association rules
 ```` java
     public static Map<String,Double> algoRecommend1(FPGrowthModel model, List<String> IF){

@@ -160,24 +160,10 @@ In this project i change data to number to echance efficiency of algorithm. Afte
 * 100 line of data for demo: [model-ver1](https://drive.google.com/file/d/1ZD_bd8BsI6oN5bN7pp5yQLv_tpPdow6Z/view?usp=sharing) (100 line of dataset)
 * 200 line of data for demo: [model-ver2](https://drive.google.com/file/d/1_W00ewwLH3mZkuvVlZBGT3sMuE9M5zxr/view?usp=sharing) (215 line of dataset)
 * Use jar file to load model: [package](https://drive.google.com/file/d/1mM_7S6Iaf6oZob3HEPNZXkIXHiQ3huOy/view?usp=sharing)
-# Precision and Recall of 4 algorithm
-![Precision và Recall ](https://github.com/user-attachments/assets/0fc44af8-3d16-4227-8854-6b8f0f853746)
+# Precision, Recall and F-measure of 4 algorithm 
+![Precision và Recall](https://github.com/user-attachments/assets/8b611cfb-7bf4-4694-aa4b-bc8e705a21b7)
+![F1-score](https://github.com/user-attachments/assets/3dc427d3-b2fe-42e5-a827-a818cd78b07e)
 # Running Time 
-| Algorithm | Input food | Time Train | Time Recommend | 
-|:---------:| :--------: | :--------: | :------------: |
-|    AR     |      1     |  101.23    |     2.51       |     
-|           |      2     |  116.76    |      2,51         |
-|           |      3     |  99.74     |      2,56         |
-|    TIC    |      1     |2,82            |   0,0             |
-|           |      2     | 2.08           |    0,8          |
-|           |      3     | 2.34           |    0,16            | 
-|    PAR    |     1      |    0,63        |       0,16        |
-|           |    2       |     0,56    |         0,23       |
-|           |    3       |     0,62       |       0,16         |
-|    CAR    |    1       |     0,0       |       0,15         |
-|           |     2      |     0,04       |       0,01         |
-|           |     3      |     0,15       |       0,0         |
----------------------------------------------------------------
 ![chart](https://github.com/user-attachments/assets/6574da20-e8a4-4156-88cd-e62e27ce3335)
 # Summary
 The CAR algorithm demonstrates a fast runtime and provides highly accurate recommendations that closely align with the algorithm's intent. Following that, the PAR and TIC algorithms also show high accuracy, but they tend to generate many redundant rules during the rule generation process. This leads to less efficient and stable performance compared to CAR.

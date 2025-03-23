@@ -126,6 +126,25 @@ In this project i change data to number to echance efficiency of algorithm. Afte
     }
 ````
 ## Algorithm 4: Build using Constraint Leased Recommend
+```` Pesu code of algorithm 4
+    function trainConstraint
+    input:
+    data: list data use for recommend 
+    if: input food of user
+    output:
+        cm: car 
+    OD[if] ← ø, khởi tạo danh sách food cần search
+    CD[if] ← ø, danh sách các món xuất hiện cùng với các input
+    for meal m ∈ data 
+        if m contains all if 
+        OD[if] ← OD[if] + 1 
+        for each food f ∈ m & if not contains f
+        if (f ∉CD[if]) 
+            CD[if,f] ← 0
+            CD[if, f] ← CD[if, f] + 1
+        cm ← [CD, OD]
+    return cm
+````
 ```` java 
         public static Map<String,Double> recommendConstraint(Map<Pair<String, Double>, Map<String,Map<String,Double>>> model){
             Map<String, Double> recommend = new HashMap<>();

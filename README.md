@@ -126,7 +126,7 @@ In this project i change data to number to echance efficiency of algorithm. Afte
     }
 ````
 ## Algorithm 4: Build using Constraint Leased Recommend
-```` Pesu code of algorithm 4
+``` Pesu code of algorithm 4
     function trainConstraint
     input:
     data: list data use for recommend 
@@ -144,7 +144,9 @@ In this project i change data to number to echance efficiency of algorithm. Afte
             CD[if, f] ← CD[if, f] + 1
         cm ← [CD, OD]
     return cm
-````
+```
+
+
 ```` java 
         public static Map<String,Double> recommendConstraint(Map<Pair<String, Double>, Map<String,Map<String,Double>>> model){
             Map<String, Double> recommend = new HashMap<>();
